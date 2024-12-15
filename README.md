@@ -4,7 +4,7 @@ This repository is the official implementation of [Contrastive CFG: Improving CF
 
 [Jinho Chang](https://www.jinhojsk515.github.io/), [Hyungjin Chung](https://www.hj-chung.com/), [Jong Chul Ye](https://bispl.weebly.com/professor.html)
 
-![main figure](assets/main_test_v5.png)
+![main figure](assets/fig1.png)
 
 [![arXiv](https://img.shields.io/badge/arXiv-2411.17077-b31b1b.svg)](https://arxiv.org/abs/2411.17077)
 
