@@ -20,11 +20,9 @@ def main():
     parser.add_argument("--pos_prompt", type=str, default="")
     parser.add_argument("--neg_prompt", type=str, default="")
     parser.add_argument("--cfg_guidance", type=float, default=7.5)
-    parser.add_argument("--tau", type=float, default=0.2)                       # for DNG and CCFG
-    parser.add_argument("--delta", type=float, default=0.003)                   # for DNG
-    parser.add_argument("--p_c_init", type=float, default=0.01)                 # for DNG
+    parser.add_argument("--tau", type=float, default=0.2)                       # for CCFG
     parser.add_argument("--naive_positive_cfg", type=bool, default=False)       # use naive CFG instead of CCFG for positive prompt
-    parser.add_argument("--method", type=str, default='ddim_np_ccfg', choices=['ddim_np_naive', 'ddim_np_dng', 'ddim_np_ccfg'])
+    parser.add_argument("--method", type=str, default='ddim_np_ccfg', choices=['ddim_np_naive', 'ddim_np_ccfg'])
     parser.add_argument("--model", type=str, default='sd15', choices=["sd15", "sdxl"])
     parser.add_argument("--NFE", type=int, default=50)
     parser.add_argument("--n_sample", type=int, default=1)
@@ -50,7 +48,7 @@ def main():
                                    prompt2=[args.null_prompt, args.pos_prompt, args.neg_prompt],
                                    cfg_guidance=args.cfg_guidance,
                                    target_size=(1024, 1024),
-                                   zT=zT, quiet=True, coeff={'tau': args.tau, 'delta': args.delta, 'p_c_init': args.p_c_init, 'naive_positive_cfg': args.naive_positive_cfg})
+                                   zT=zT, quiet=True, coeff={'tau': args.tau, 'naive_positive_cfg': args.naive_positive_cfg})
             for i in range(zT.shape[0]):
                 save_image(result[i], args.workdir.joinpath(f'result/generated_{idx}.png'), normalize=True)
                 output_img_paths.append(str(args.workdir.joinpath(f'result/generated_{idx}.png')))
@@ -66,7 +64,7 @@ def main():
             zT = torch.randn(args.minibatch, 4, 64, 64).to(solver.device)
             result = solver.sample(prompt=[args.null_prompt, args.pos_prompt, args.neg_prompt],
                                    cfg_guidance=args.cfg_guidance,
-                                   zT=zT, quiet=True, coeff={'tau': args.tau, 'delta': args.delta, 'p_c_init': args.p_c_init, 'naive_positive_cfg': args.naive_positive_cfg})
+                                   zT=zT, quiet=True, coeff={'tau': args.tau, 'naive_positive_cfg': args.naive_positive_cfg})
             for i in range(zT.shape[0]):
                 save_image(result[i], args.workdir.joinpath(f'result/generated_{idx}.png'), normalize=True)
                 output_img_paths.append(str(args.workdir.joinpath(f'result/generated_{idx}.png')))
