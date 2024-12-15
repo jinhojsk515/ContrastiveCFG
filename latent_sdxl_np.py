@@ -376,7 +376,7 @@ class BaseDDIMnpNaive(SDXL):
             # add noise
             zt = at_next.sqrt() * z0t + (1 - at_next).sqrt() * noise_pred
 
-        # for the last stpe, do not add noise
+        # for the last step, do not add noise
         return z0t
 
 
@@ -423,62 +423,7 @@ class BaseDDIMnpCCFG(SDXL):
             # add noise
             zt = at_next.sqrt() * z0t + (1 - at_next).sqrt() * noise_pred
 
-        # for the last stpe, do not add noise
-        return z0t
-
-
-@register_solver('ddim_np_dng')
-class BaseDDIMnpDNG(SDXL):
-    def update_lambda(self, x, x_next, predict_epsilon, predict_epsilon_uc, idx, lambda_, at, at_prev, d, tau):
-        sigma = 1-at/at_prev
-        mu_c = (x - predict_epsilon*sigma/torch.sqrt(1-at)) / torch.sqrt(at/at_prev)
-        mu_null = (x - predict_epsilon_uc*sigma/torch.sqrt(1-at)) / torch.sqrt(at/at_prev)
-        l2diff_c = (mu_c - x_next).pow(2).sum(dim=(-3 ,-2, -1))
-        l2diff_null = (mu_null - x_next).pow(2).sum(dim=(-3, -2, -1))
-        new_lambda = lambda_ * torch.exp(-(tau*(l2diff_c - l2diff_null)-d)/(2*sigma))
-        new_lambda = new_lambda.clamp(0.0001, 0.5)
-        return new_lambda
-
-    def reverse_process(self,
-                        null_prompt_embeds,
-                        prompt_embeds, neg_prompt_embeds,
-                        cfg_guidance,
-                        add_cond_kwargs,
-                        shape=(1024, 1024),
-                        **kwargs):
-        #################################
-        # Sample region - where to change
-        #################################
-        # initialize zT
-        zt = self.initialize_latent(size=(1, 4, shape[1] // self.vae_scale_factor, shape[0] // self.vae_scale_factor))
-        zt = kwargs.get('zT', zt).requires_grad_()
-        coeff = kwargs['coeff']
-
-        # sampling
-        pbar = self.scheduler.timesteps.int() if kwargs.get('quiet', False) else tqdm(self.scheduler.timesteps.int(), desc="SD")
-        lambda_ = torch.ones(zt.size(0)).to(self.device) * coeff['p_c_init']    # DNG
-
-        for step, t in enumerate(pbar):
-            next_t = t - self.skip
-            at = self.scheduler.alphas_cumprod[t]
-            at_next = self.scheduler.alphas_cumprod[next_t]
-
-            w = cfg_guidance * lambda_ / (1 - lambda_)  # DNG
-            zt_prev = zt.clone().detach()
-
-            with torch.no_grad():
-                noise_uc, noise_c, noise_nc = self.predict_noise(zt, t, null_prompt_embeds, prompt_embeds, neg_prompt_embeds, add_cond_kwargs)
-                noise_pred = noise_uc + cfg_guidance * (noise_c - noise_uc)
-                noise_pred -= w[:, None, None, None] * (noise_nc - noise_uc)  # DNG
-
-            # tweedie
-            z0t = (zt - (1 - at).sqrt() * noise_pred) / at.sqrt()
-
-            # add noise
-            zt = at_next.sqrt() * z0t + (1 - at_next).sqrt() * noise_pred
-
-            lambda_ = self.update_lambda(zt_prev, zt, noise_nc, noise_uc, t, lambda_, at, at_next, d=coeff['delta'], tau=coeff['tau'])       # DNG
-        # for the last stpe, do not add noise
+        # for the last step, do not add noise
         return z0t
 
 
