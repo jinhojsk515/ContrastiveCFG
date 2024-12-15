@@ -18,6 +18,8 @@ Inspired by recent advances in conditional diffusion models for inverse problems
 Specifically, our guidance term aligns or repels the denoising direction based on the given condition through contrastive loss, achieving a nearly identical guiding direction to traditional CFG for positive guidance while overcoming the limitations of existing negative guidance methods. 
 Experimental results demonstrate that our approach effectively removes undesirable concepts while maintaining sample quality across diverse scenarios, from simple class conditions to complex and overlapping text prompts.
 
+![main figure](assets/fig2.png)
+
 ## 2. Conda env setup
 Run `pip install -r requirements.txt` to install the required packages into your wanted conda environment.
 
