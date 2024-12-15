@@ -1,8 +1,8 @@
 # Contrastive CFG: Improving CFG in Diffusion Models by Contrasting Positive and Negative Concepts
 
-This repository is the official implementation of [Contrastive CFG: Improving CFG in Diffusion Models by Contrasting Positive and Negative Concepts](https://arxiv.org/abs/2411.17077) by
+This repository is the official implementation of *[Contrastive CFG: Improving CFG in Diffusion Models by Contrasting Positive and Negative Concepts](https://arxiv.org/abs/2411.17077)* by:
 
-[Jinho Chang](https://www.jinhojsk515.github.io/), [Hyungjin Chung](https://www.hj-chung.com/), [Jong Chul Ye](https://bispl.weebly.com/professor.html)
+*[Jinho Chang](https://www.jinhojsk515.github.io/)*, *[Hyungjin Chung](https://www.hj-chung.com/)*, and *[Jong Chul Ye](https://bispl.weebly.com/professor.html)*
 
 ![main figure](assets/fig1.png)
 
