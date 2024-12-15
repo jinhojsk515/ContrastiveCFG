@@ -4,9 +4,9 @@ This repository is the official implementation of *[Contrastive CFG: Improving C
 
 *[Jinho Chang](https://jinhojsk515.github.io/)*, *[Hyungjin Chung](https://www.hj-chung.com/)*, and *[Jong Chul Ye](https://bispl.weebly.com/professor.html)*
 
-![main figure](assets/fig1.png)
-
 [![arXiv](https://img.shields.io/badge/arXiv-2411.17077-b31b1b.svg)](https://arxiv.org/abs/2411.17077)
+
+![main figure](assets/fig1.png)
 
 ---
 ## 1. Abstract
