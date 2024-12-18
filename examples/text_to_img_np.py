@@ -21,7 +21,7 @@ def main():
     parser.add_argument("--neg_prompt", type=str, default="")
     parser.add_argument("--cfg_guidance", type=float, default=7.5)
     parser.add_argument("--tau", type=float, default=0.2)                       # for CCFG
-    parser.add_argument("--naive_positive_cfg", type=bool, default=False)       # use naive CFG instead of CCFG for positive prompt
+    parser.add_argument("--naive_positive_cfg", cation='store_true')       # use naive CFG instead of CCFG for positive prompt
     parser.add_argument("--method", type=str, default='ddim_np_ccfg', choices=['ddim_np_naive', 'ddim_np_ccfg'])
     parser.add_argument("--model", type=str, default='sd15', choices=["sd15", "sdxl"])
     parser.add_argument("--NFE", type=int, default=50)
