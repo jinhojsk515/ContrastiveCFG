@@ -407,69 +407,6 @@ class BaseDDIMnpCCFG(StableDiffusion):
         return img.detach().cpu()
 
 
-
-@register_solver("ddim_np_dng")
-@torch.no_grad()
-class BaseDDIMnpDNG(StableDiffusion):
-    def update_lambda(self, x, x_next, predict_epsilon, predict_epsilon_uc, idx, lambda_, at, at_prev, d, tau):
-        sigma = 1-at/at_prev
-        mu_c = (x - predict_epsilon*sigma/torch.sqrt(1-at)) / torch.sqrt(at/at_prev)
-        mu_null = (x - predict_epsilon_uc*sigma/torch.sqrt(1-at)) / torch.sqrt(at/at_prev)
-        l2diff_c = (mu_c - x_next).pow(2).sum(dim=(-3 ,-2, -1))
-        l2diff_null = (mu_null - x_next).pow(2).sum(dim=(-3, -2, -1))
-        new_lambda = lambda_ * torch.exp(-(tau*(l2diff_c - l2diff_null)-d)/(2*sigma))
-        new_lambda = new_lambda.clamp(0.0001, 0.5)
-        return new_lambda
-
-    @torch.autocast(device_type='cuda', dtype=torch.float16)
-    def sample(self,
-               cfg_guidance=7.5,
-               prompt=["", "", ""],
-               **kwargs):
-        # Text embedding
-        uc, pc, nc = self.get_text_embed(null_prompt=prompt[0], prompt=prompt[1], negative_prompt=prompt[2])
-        use_nc = prompt[2] != ""
-        use_pc = prompt[1] != ""
-
-        # Initialize zT
-        zt = self.initialize_latent()
-        zt = kwargs.get('zT', zt).requires_grad_()
-        coeff = kwargs['coeff']
-
-        # Sampling
-        pbar = self.scheduler.timesteps if kwargs.get('quiet', False) else tqdm(self.scheduler.timesteps, desc="SD")
-        lambda_ = torch.ones(zt.size(0)).to(self.device) * coeff['p_c_init']    # DNG
-
-        for step, t in enumerate(pbar):
-            at = self.alpha(t)
-            at_prev = self.alpha(t - self.skip)
-
-            w = cfg_guidance * lambda_ / (1 - lambda_)              # DNG
-            zt_prev = zt.clone().detach()
-
-            with torch.no_grad():
-                noise_uc, noise_pc, noise_nc = self.predict_noise(zt, t, uc, pc, nc)
-
-                noise_pred = noise_uc.clone().detach()
-                if use_pc:  noise_pred += cfg_guidance * (noise_pc - noise_uc)
-                if use_nc:  noise_pred -= w[:, None, None, None] * (noise_nc - noise_uc)    # DNG
-
-            # tweedie
-            z0t = (zt - (1 - at).sqrt() * noise_pred) / at.sqrt()
-
-            # add noise
-            zt = at_prev.sqrt() * z0t + (1 - at_prev).sqrt() * noise_pred
-
-            lambda_ = self.update_lambda(zt_prev, zt, noise_nc, noise_uc, t, lambda_, at, at_prev, d=coeff['delta'], tau=coeff['tau'])       # DNG
-
-        # for the last step, do not add noise
-        img = self.decode(z0t)
-        img = (img / 2 + 0.5).clamp(0, 1)
-        return img.detach().cpu()
-
-
-
-
 if __name__ == "__main__":
     # print all list of solvers
     print(f"Possble solvers: {[x for x in __SOLVER__.keys()]}")
