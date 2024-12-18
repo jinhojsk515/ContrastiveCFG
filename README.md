@@ -27,8 +27,6 @@ Run `pip install -r requirements.txt` to install the required packages into your
 
 ### Text-to-Image generation with positive & negative prompts
 
-To use StableDifusion XL, include `--model sdxl`.
-
 - CFG
 ```
 python -m examples.text_to_img_np --pos_prompt "a photo of a flower." --neg_prompt "a yellow flower." --method "ddim_np_naive" --cfg_guidance 7.5 --n_sample 1 --minibatch 1
@@ -40,6 +38,9 @@ python -m examples.text_to_img_np --pos_prompt "a photo of a flower." --neg_prom
 python -m examples.text_to_img_np --pos_prompt "a photo of a flower." --neg_prompt "a yellow flower." --method "ddim_np_ccfg" --cfg_guidance 7.5 --n_sample 1 --minibatch 1
 ```
 
+> [!tip]
+> - If you want to use SDXL, add ``--model sdxl``.
+> - If you want to use Contrastive CFG only for negative prompts, add ``--naive_positive_cfg``.
 
 ## 4. Citation
 If you find our method useful, please cite as below or leave a star to this repository.
